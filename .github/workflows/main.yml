@@ -27,7 +27,10 @@ jobs:
           HOT_SWITCH_BOT_TOKEN: ${{ secrets.HOT_SWITCH_BOT_TOKEN }}
           AUTOMATIONS_CHANNEL_ID: ${{ secrets.AUTOMATIONS_CHANNEL_ID }}
           MODE: plan
-        run: python hot_water_controller.py
+        run: |
+          python hot_water_controller.py
+          echo "Plan step completed. schedule.json exists:"
+          ls -l schedule.json
 
       - name: Upload schedule.json
         if: github.event.schedule == '55 0 * * *'
@@ -36,11 +39,14 @@ jobs:
           name: schedule
           path: schedule.json
 
-      - name: Download schedule.json
+
+      - name: Try downloading schedule.json
         if: github.event.schedule != '55 0 * * *'
+        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: schedule
+
 
       - name: Run message checks
         if: github.event.schedule != '55 0 * * *'
