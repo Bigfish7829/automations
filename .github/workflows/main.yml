@@ -1,14 +1,20 @@
 name: Agile Telegram Notifier
 on:
   schedule:
+    - cron: '27 22 * * *'    # plan once daily at 22:25
     - cron: '*/30 * * * *'   # run every 30 minutes
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   agile:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -18,21 +24,9 @@ jobs:
       - name: Install dependencies
         run: pip install requests pytz
       
-      # Determine what to do based on time
-      - name: Check if it's planning time
-        id: check-time
-        run: |
-          current_hour=$(date +%H)
-          current_minute=$(date +%M)
-          if [ "$current_hour" = "22" ] && [ "$current_minute" = "25" ]; then
-            echo "action=plan" >> $GITHUB_OUTPUT
-          else
-            echo "action=run" >> $GITHUB_OUTPUT
-          fi
-      
-      # Planning step
+      # Planning step - runs once daily at 22:25
       - name: Plan prices and save schedule
-        if: steps.check-time.outputs.action == 'plan' || github.event_name == 'workflow_dispatch'
+        if: github.event.schedule == '27 22 * * *' || github.event_name == 'workflow_dispatch'
         env:
           HOT_SWITCH_BOT_TOKEN: ${{ secrets.HOT_SWITCH_BOT_TOKEN }}
           AUTOMATIONS_CHANNEL_ID: ${{ secrets.AUTOMATIONS_CHANNEL_ID }}
@@ -40,23 +34,45 @@ jobs:
         run: python hot_water_controller.py
       
       - name: Commit schedule to repository
-        if: steps.check-time.outputs.action == 'plan' || github.event_name == 'workflow_dispatch'
+        if: github.event.schedule == '27 22 * * *' || github.event_name == 'workflow_dispatch'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add schedule.json
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
+          
+          if [ -f "schedule.json" ]; then
+            git add schedule.json
+            if git diff --staged --quiet; then
+              echo "✅ No changes to schedule.json"
+            else
+              git commit -m "📅 Update schedule for $(date '+%Y-%m-%d %H:%M')"
+              git push
+              echo "✅ Schedule committed and pushed"
+            fi
           else
-            git commit -m "Update schedule for $(date)"
-            git push
+            echo "❌ schedule.json not found"
+            exit 1
           fi
       
-      # Running step
+      # Running step - runs every 30 minutes
       - name: Run message checks
-        if: steps.check-time.outputs.action == 'run'
+        if: github.event.schedule == '*/30 * * * *'
         env:
           HOT_SWITCH_BOT_TOKEN: ${{ secrets.HOT_SWITCH_BOT_TOKEN }}
           AUTOMATIONS_CHANNEL_ID: ${{ secrets.AUTOMATIONS_CHANNEL_ID }}
           MODE: run
         run: python hot_water_controller.py
+      
+      - name: Update schedule after sending messages
+        if: github.event.schedule == '*/30 * * * *'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          if git diff --quiet schedule.json; then
+            echo "✅ No messages were sent, schedule unchanged"
+          else
+            git add schedule.json
+            git commit -m "📤 Update schedule after sending messages $(date '+%Y-%m-%d %H:%M')"
+            git push
+            echo "✅ Updated schedule committed"
+          fi
