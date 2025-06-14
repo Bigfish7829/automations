@@ -2,13 +2,14 @@ name: Agile Telegram Notifier
 
 on:
   schedule:
-    - cron: '55 0 * * *'     # 00:55 UK time to plan (01:55 BST)
-    - cron: '*/30 * * * *'   # every 30 mins to check/send
+    - cron: '55 0 * * *'     # Daily 00:55 UK time to plan
+    - cron: '*/30 * * * *'   # Every 30 mins to check/send
   workflow_dispatch:
 
 jobs:
   agile:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
