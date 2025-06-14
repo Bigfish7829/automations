@@ -7,11 +7,11 @@ import pytz
 import keys
 
 # Telegram config from env
-# BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-# CHANNEL_ID = os.environ["TELEGRAM_CHANNEL_ID"]
+BOT_TOKEN = os.environ["HOT_SWITCH_BOT_TOKEN"]
+CHANNEL_ID = os.environ["AUTOMATIONS_CHAT_ID"]
 
-BOT_TOKEN = keys.HOT_SWITCH_BOT_TOKEN
-CHANNEL_ID = keys.AUTOMATIONS_CHAT_ID
+# BOT_TOKEN = keys.HOT_SWITCH_BOT_TOKEN
+# CHANNEL_ID = keys.AUTOMATIONS_CHAT_ID
 
 tz = pytz.timezone("Europe/London")
 PRODUCT_CODE = "AGILE-24-10-01"
