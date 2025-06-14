@@ -4,7 +4,7 @@ import requests
 from datetime import datetime, timedelta
 import pytz
 
-import keys
+# import keys
 
 # Telegram config from env
 BOT_TOKEN = os.environ["HOT_SWITCH_BOT_TOKEN"]
