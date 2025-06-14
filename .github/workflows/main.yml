@@ -1,1 +1,37 @@
+name: Agile Telegram Notifier
 
+on:
+  schedule:
+    - cron: '55 0 * * *'     # 00:55 UK time to plan
+    - cron: '*/30 * * * *'   # every 30 mins to check/send
+  workflow_dispatch:
+
+jobs:
+  agile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests pytz
+
+      - name: Plan prices and schedule
+        if: github.event.schedule == '55 0 * * *'
+        env:
+          HOT_SWITCH_BOT_TOKEN: ${{ secrets.HOT_SWITCH_BOT_TOKEN }}
+          AUTOMATIONS_CHANNEL_ID: ${{ secrets.AUTOMATIONS_CHANNEL_ID }}
+          MODE: plan
+        run: python cheapest_blocks.py
+
+      - name: Run message checks
+        if: github.event.schedule != '55 0 * * *'
+        env:
+          HOT_SWITCH_BOT_TOKEN: ${{ secrets.HOT_SWITCH_BOT_TOKEN }}
+          AUTOMATIONS_CHANNEL_ID: ${{ secrets.AUTOMATIONS_CHANNEL_ID }}
+          MODE: run
+        run: python hot_water_controller.py
