@@ -1,10 +1,7 @@
 name: Agile Telegram Notifier
-
 on:
   schedule:
-
-    - cron: '56 21 * * *'    # plan
-    - cron: '*/30 * * * *'   # run
+    - cron: '*/30 * * * *'   # run every 30 minutes
   workflow_dispatch:
 
 jobs:
@@ -12,38 +9,52 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+      
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
+          
       - name: Install dependencies
         run: pip install requests pytz
-
+      
+      # Determine what to do based on time
+      - name: Check if it's planning time
+        id: check-time
+        run: |
+          current_hour=$(date +%H)
+          current_minute=$(date +%M)
+          if [ "$current_hour" = "22" ] && [ "$current_minute" = "13" ]; then
+            echo "action=plan" >> $GITHUB_OUTPUT
+          else
+            echo "action=run" >> $GITHUB_OUTPUT
+          fi
+      
+      # Planning step
       - name: Plan prices and save schedule
-        if: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '55 0 * * *' }}
+        if: steps.check-time.outputs.action == 'plan' || github.event_name == 'workflow_dispatch'
         env:
           HOT_SWITCH_BOT_TOKEN: ${{ secrets.HOT_SWITCH_BOT_TOKEN }}
           AUTOMATIONS_CHANNEL_ID: ${{ secrets.AUTOMATIONS_CHANNEL_ID }}
           MODE: plan
         run: python hot_water_controller.py
-
-      - name: Upload schedule
-        if: github.event.schedule == '55 0 * * *'
-        uses: actions/upload-artifact@v4
-        with:
-          name: schedule
-          path: schedule.json
-
-      - name: Download schedule
-        if: github.event.schedule != '55 0 * * *'
-        uses: actions/download-artifact@v4
-        with:
-          name: schedule
-
+      
+      - name: Commit schedule to repository
+        if: steps.check-time.outputs.action == 'plan' || github.event_name == 'workflow_dispatch'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add schedule.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update schedule for $(date)"
+            git push
+          fi
+      
+      # Running step
       - name: Run message checks
-        if: github.event.schedule != '55 0 * * *'
+        if: steps.check-time.outputs.action == 'run'
         env:
           HOT_SWITCH_BOT_TOKEN: ${{ secrets.HOT_SWITCH_BOT_TOKEN }}
           AUTOMATIONS_CHANNEL_ID: ${{ secrets.AUTOMATIONS_CHANNEL_ID }}
