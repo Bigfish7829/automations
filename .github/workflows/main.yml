@@ -24,7 +24,7 @@ jobs:
         run: |
           current_hour=$(date +%H)
           current_minute=$(date +%M)
-          if [ "$current_hour" = "22" ] && [ "$current_minute" = "13" ]; then
+          if [ "$current_hour" = "22" ] && [ "$current_minute" = "25" ]; then
             echo "action=plan" >> $GITHUB_OUTPUT
           else
             echo "action=run" >> $GITHUB_OUTPUT
