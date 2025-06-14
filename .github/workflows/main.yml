@@ -21,7 +21,7 @@ jobs:
         run: pip install requests pytz
 
       - name: Plan prices and save schedule
-        if: github.event.schedule == '55 0 * * *'
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '55 0 * * *' }}
         env:
           HOT_SWITCH_BOT_TOKEN: ${{ secrets.HOT_SWITCH_BOT_TOKEN }}
           AUTOMATIONS_CHANNEL_ID: ${{ secrets.AUTOMATIONS_CHANNEL_ID }}
