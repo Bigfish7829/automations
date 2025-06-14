@@ -26,7 +26,7 @@ jobs:
           HOT_SWITCH_BOT_TOKEN: ${{ secrets.HOT_SWITCH_BOT_TOKEN }}
           AUTOMATIONS_CHANNEL_ID: ${{ secrets.AUTOMATIONS_CHANNEL_ID }}
           MODE: plan
-        run: python cheapest_blocks.py
+        run: python hot_water_controller.py
 
       - name: Run message checks
         if: github.event.schedule != '55 0 * * *'
