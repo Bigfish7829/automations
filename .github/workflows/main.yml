@@ -2,7 +2,8 @@ name: Agile Telegram Notifier
 
 on:
   schedule:
-    - cron: '55 0 * * *'     # plan
+
+    - cron: '56 21 * * *'    # plan
     - cron: '*/30 * * * *'   # run
   workflow_dispatch:
 
