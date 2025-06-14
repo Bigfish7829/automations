@@ -2,14 +2,13 @@ name: Agile Telegram Notifier
 
 on:
   schedule:
-    - cron: '55 0 * * *'     # Daily 00:55 UK time to plan
-    - cron: '*/30 * * * *'   # Every 30 mins to check/send
+    - cron: '55 0 * * *'     # plan
+    - cron: '*/30 * * * *'   # run
   workflow_dispatch:
 
 jobs:
   agile:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -21,32 +20,26 @@ jobs:
       - name: Install dependencies
         run: pip install requests pytz
 
-      - name: Plan prices and schedule
+      - name: Plan prices and save schedule
         if: github.event.schedule == '55 0 * * *'
         env:
           HOT_SWITCH_BOT_TOKEN: ${{ secrets.HOT_SWITCH_BOT_TOKEN }}
           AUTOMATIONS_CHANNEL_ID: ${{ secrets.AUTOMATIONS_CHANNEL_ID }}
           MODE: plan
-        run: |
-          python hot_water_controller.py
-          echo "Plan step completed. schedule.json exists:"
-          ls -l schedule.json
+        run: python hot_water_controller.py
 
-      - name: Upload schedule.json
+      - name: Upload schedule
         if: github.event.schedule == '55 0 * * *'
         uses: actions/upload-artifact@v4
         with:
           name: schedule
           path: schedule.json
 
-
-      - name: Try downloading schedule.json
+      - name: Download schedule
         if: github.event.schedule != '55 0 * * *'
-        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: schedule
-
 
       - name: Run message checks
         if: github.event.schedule != '55 0 * * *'
