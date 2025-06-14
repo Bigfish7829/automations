@@ -8,7 +8,7 @@ import pytz
 
 # Telegram config from env
 BOT_TOKEN = os.environ["HOT_SWITCH_BOT_TOKEN"]
-CHANNEL_ID = os.environ["AUTOMATIONS_CHAT_ID"]
+CHANNEL_ID = os.environ["AUTOMATIONS_CHANNEL_ID"]
 
 # BOT_TOKEN = keys.HOT_SWITCH_BOT_TOKEN
 # CHANNEL_ID = keys.AUTOMATIONS_CHAT_ID
