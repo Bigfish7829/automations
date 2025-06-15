@@ -35,9 +35,9 @@ def get_prices():
 
 def find_cheapest_block(prices, start_hour, end_hour):
     window = [p for p in prices if start_hour <= p["start"].hour < end_hour]
-    if len(window) < 4:
+    if len(window) < 3:
         return None
-    best = min((window[i:i+4] for i in range(len(window)-3)),
+    best = min((window[i:i+3] for i in range(len(window)-2)),
                key=lambda b: sum(p["price"] for p in b))
     return best
 
@@ -155,7 +155,7 @@ if __name__ == "__main__":
             prices = get_prices()
             print(f"📊 Got {len(prices)} price periods")
             blocks = []
-            for label, start, end in [("morning", 6, 12), ("afternoon", 12, 18)]:
+            for label, start, end in [("morning", 1, 7), ("afternoon", 8, 19)]:
                 block = find_cheapest_block(prices, start, end)
                 if block:
                     blocks.append((block, format_msg(label, block)))
