@@ -1,9 +1,19 @@
 name: Agile Telegram Notifier
 on:
   schedule:
-    - cron: '10 02 * * *'    # plan once daily at 22:25
+    - cron: '25 01 * * *'    # plan once daily at 22:25
     - cron: '*/30 * * * *'   # run every 30 minutes
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'What to run'
+        required: false
+        default: 'plan'
+        type: choice
+        options:
+        - plan
+        - run
+        - both
 
 permissions:
   contents: write
@@ -24,9 +34,11 @@ jobs:
       - name: Install dependencies
         run: pip install requests pytz
       
-      # Planning step - runs once daily at 22:25
+      # Planning step - runs daily at 22:25 or when manually triggered
       - name: Plan prices and save schedule
-        if: github.event.schedule == '10 02 * * *' || github.event_name == 'workflow_dispatch'
+        if: |
+          github.event.schedule == '25 01 * * *' || 
+          (github.event_name == 'workflow_dispatch' && (inputs.mode == 'plan' || inputs.mode == 'both'))
         env:
           HOT_SWITCH_BOT_TOKEN: ${{ secrets.HOT_SWITCH_BOT_TOKEN }}
           AUTOMATIONS_CHANNEL_ID: ${{ secrets.AUTOMATIONS_CHANNEL_ID }}
@@ -34,7 +46,9 @@ jobs:
         run: python hot_water_controller.py
       
       - name: Commit schedule to repository
-        if: github.event.schedule == '10 02 * * *' || github.event_name == 'workflow_dispatch'
+        if: |
+          github.event.schedule == '25 01 * * *' || 
+          (github.event_name == 'workflow_dispatch' && (inputs.mode == 'plan' || inputs.mode == 'both'))
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -53,9 +67,11 @@ jobs:
             exit 1
           fi
       
-      # Running step - runs every 30 minutes
+      # Running step - runs every 30 minutes or when manually triggered
       - name: Run message checks
-        if: github.event.schedule == '*/30 * * * *'
+        if: |
+          github.event.schedule == '*/30 * * * *' || 
+          (github.event_name == 'workflow_dispatch' && (inputs.mode == 'run' || inputs.mode == 'both'))
         env:
           HOT_SWITCH_BOT_TOKEN: ${{ secrets.HOT_SWITCH_BOT_TOKEN }}
           AUTOMATIONS_CHANNEL_ID: ${{ secrets.AUTOMATIONS_CHANNEL_ID }}
@@ -63,7 +79,9 @@ jobs:
         run: python hot_water_controller.py
       
       - name: Update schedule after sending messages
-        if: github.event.schedule == '*/30 * * * *'
+        if: |
+          github.event.schedule == '*/30 * * * *' || 
+          (github.event_name == 'workflow_dispatch' && (inputs.mode == 'run' || inputs.mode == 'both'))
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
