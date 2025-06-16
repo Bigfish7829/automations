@@ -1,7 +1,7 @@
 name: Agile Telegram Notifier
 on:
   schedule:
-    - cron: '25 01 * * *'    # plan once daily at 22:25
+    - cron: '05 00 * * *'    # plan once daily at 22:25
     - cron: '*/30 * * * *'   # run every 30 minutes
   workflow_dispatch:
     inputs:
@@ -37,7 +37,7 @@ jobs:
       # Planning step - runs daily at 22:25 or when manually triggered
       - name: Plan prices and save schedule
         if: |
-          github.event.schedule == '25 01 * * *' || 
+          github.event.schedule == '05 00 * * *' || 
           (github.event_name == 'workflow_dispatch' && (inputs.mode == 'plan' || inputs.mode == 'both'))
         env:
           HOT_SWITCH_BOT_TOKEN: ${{ secrets.HOT_SWITCH_BOT_TOKEN }}
@@ -47,7 +47,7 @@ jobs:
       
       - name: Commit schedule to repository
         if: |
-          github.event.schedule == '25 01 * * *' || 
+          github.event.schedule == '05 00 * * *' || 
           (github.event_name == 'workflow_dispatch' && (inputs.mode == 'plan' || inputs.mode == 'both'))
         run: |
           git config --local user.email "action@github.com"
