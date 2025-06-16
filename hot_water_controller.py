@@ -45,11 +45,13 @@ def format_msg(label, block):
     start = block[0]["start"].strftime("%H:%M")
     end = block[-1]["end"].strftime("%H:%M")
     total = sum(p["price"] for p in block)
+    average = total / len(block)
     return (
         f"⚡️ Cheapest {label} block\n"
         f"🕒 {start} - {end}\n"
-        f"💷 Total: {total:.2f}p"
+        f"💷 Average: Avg: {average:.2f}p"
     )
+
 
 def send_telegram_message(msg):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -155,7 +157,7 @@ if __name__ == "__main__":
             prices = get_prices()
             print(f"📊 Got {len(prices)} price periods")
             blocks = []
-            for label, start, end in [("morning", 1, 7), ("afternoon", 8, 19)]:
+            for label, start, end in [("morning", 2, 7), ("afternoon", 8, 19)]:
                 block = find_cheapest_block(prices, start, end)
                 if block:
                     blocks.append((block, format_msg(label, block)))
