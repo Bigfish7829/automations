@@ -1,16 +1,16 @@
 {
   "periods": [
     {
-      "start_time": "2025-08-18 02:00",
-      "end_time": "2025-08-18 03:30",
-      "text": "\u26a1\ufe0f Cheapest morning block\n\ud83d\udd52 02:00 - 03:30\n\ud83d\udcb7 Average: Avg: 15.50p",
+      "start_time": "2025-08-19 03:30",
+      "end_time": "2025-08-19 05:00",
+      "text": "\u26a1\ufe0f Cheapest morning block\n\ud83d\udd52 03:30 - 05:00\n\ud83d\udcb7 Average: Avg: 15.01p",
       "notified": false
     },
     {
-      "start_time": "2025-08-18 14:00",
-      "end_time": "2025-08-18 15:30",
-      "text": "\u26a1\ufe0f Cheapest afternoon block\n\ud83d\udd52 14:00 - 15:30\n\ud83d\udcb7 Average: Avg: 15.34p",
-      "notified": true
+      "start_time": "2025-08-19 13:00",
+      "end_time": "2025-08-19 14:30",
+      "text": "\u26a1\ufe0f Cheapest afternoon block\n\ud83d\udd52 13:00 - 14:30\n\ud83d\udcb7 Average: Avg: 14.05p",
+      "notified": false
     }
   ]
 }
