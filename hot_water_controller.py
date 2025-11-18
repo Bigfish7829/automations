@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import pytz
 
 # Telegram config from env
+
 BOT_TOKEN = os.environ["HOT_SWITCH_BOT_TOKEN"]
 CHANNEL_ID = os.environ["AUTOMATIONS_CHANNEL_ID"]
 
